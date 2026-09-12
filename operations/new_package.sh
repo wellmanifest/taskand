@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # taskand-new-pkg.sh — generator szkieletu paczki zgodnej ze Standardem taskand v1.0
-# użycie: sh scripts/taskand-new-pkg.sh <nazwa> [rola] [org]
+# użycie: bash scripts/taskand-new-pkg.sh <nazwa> [rola] [org]
 set -eu
 
 NAME="${1:?Użycie: taskand-new-pkg.sh <nazwa> [rola] [org]}"
@@ -9,7 +9,9 @@ ORG="${3:-taskand.dev}"
 TARGET_DIR="packages/$NAME"
 PROCS_DIR="$TARGET_DIR/proc/hello-world/$ORG/v1"
 
-mkdir -p "$TARGET_DIR"/{proc,schemas,strategy,skills,claims,twin,patches,deps,tasks,dist}
+for d in proc schemas strategy skills claims twin patches deps tasks dist; do
+  mkdir -p "$TARGET_DIR/$d"
+done
 mkdir -p "$PROCS_DIR"
 
 cat > "$TARGET_DIR/capsule.yaml" <<CAPSULE_EOF
