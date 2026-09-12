@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskandProcessCatalogV1",
+  "type": "object",
+  "required": ["version", "standard", "bindings"],
+  "properties": {
+    "version": { "type": "integer" },
+    "standard": { "type": "string" },
+    "generatedAt": { "type": "string" },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["uri", "path", "binSha256", "yamlSha256", "testSha256"],
+        "properties": {
+          "uri": { "type": "string" },
+          "path": { "type": "string" },
+          "binSha256": { "type": "string" },
+          "yamlSha256": { "type": "string" },
+          "testSha256": { "type": "string" }
+        }
+      }
+    }
+  }
+}

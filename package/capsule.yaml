@@ -1,0 +1,79 @@
+apiVersion: taskand.dev/v1
+kind: Capsule
+metadata:
+  name: taskand-glm53
+  version: "1.0.0"
+  description: "Standard taskand v1.0 — referencyjna paczka z procesami URI, ewolucją i Digital Twin"
+
+spec:
+  role: application
+
+  processes:
+    - uri: proc://taskand.dev/flow/login/v1
+      role: orchestrator
+      grants: [execute-proc]
+      calls:
+        - proc://taskand.dev/browser/session/v1
+        - proc://taskand.dev/web/navigate/v1
+        - proc://taskand.dev/web/analyze/v1
+
+    - uri: proc://taskand.dev/browser/session/v1
+      role: worker
+      grants: [run]
+
+    - uri: proc://taskand.dev/web/navigate/v1
+      role: worker
+      grants: [run]
+
+    - uri: proc://taskand.dev/web/analyze/v1
+      role: worker
+      grants: [run]
+
+  permissions:
+    source: grants.yaml
+    defaults:
+      deny: [policy-write, claims-delete, git-push, self-restart]
+
+  artifacts:
+    - class: process
+      mode: versioned
+    - class: schema
+      mode: versioned-validated
+    - class: strategy
+      mode: versioned
+    - class: skill
+      mode: reviewed
+    - class: knowledge
+      mode: append-only
+    - class: twin
+      mode: requalified
+
+  evolution:
+    delegated-to: capsule:taskand-developer
+    twin:
+      corpus: journal
+      retries: 3
+    on-exhausted: keep-previous + report
+
+  deploy:
+    policy: twin-first
+    health:
+      after: deploy
+      on-fail: auto-rollback
+
+  storage:
+    kind: git
+    versioning:
+      mode: commits+tags
+      tagPrefix: capsule-
+    evolution:
+      branches: evo/<id>
+      merge: no-ff
+    exchange:
+      patches: patches/
+      import: git-am-reviewed
+    prohibited: [force-push, history-rewrite]
+
+  runtime:
+    repo-mount: read-only
+    self-modification: denied

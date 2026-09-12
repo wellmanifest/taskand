@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taskand:schema:capsule:v1",
+  "title": "Capsule Manifest v1",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": { "type": "string", "const": "taskand.dev/v1" },
+    "kind": { "type": "string", "const": "Capsule" },
+    "metadata": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "required": ["role", "processes", "permissions", "evolution"],
+      "properties": {
+        "role": { "type": "string" },
+        "processes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["uri", "role"],
+            "properties": {
+              "uri": { "type": "string" },
+              "role": { "type": "string" }
+            }
+          }
+        },
+        "permissions": { "type": "object" },
+        "evolution": { "type": "object" }
+      }
+    }
+  }
+}

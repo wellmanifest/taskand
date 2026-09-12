@@ -1,0 +1,81 @@
+{
+  "schema": "wellmanifest.taskand/policy/v1",
+  "standard": "wellmanifest/taskand",
+  "version": "1.0.0",
+  "home": "wellmanifest",
+  "shape": "domain_pack",
+  "profiles": {
+    "taskand-v1": {
+      "manifest_schema": "taskand.capsule/v1",
+      "required_files": [
+        "capsule.yaml",
+        "grants.yaml",
+        "proc-catalog.json",
+        "Makefile",
+        "package.json"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "TKD-001",
+      "title": "Capsule manifest with processes[] and valid role",
+      "description": "capsule.yaml must exist and define spec.role (application, orchestrator, worker, agent) and spec.processes list",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-002",
+      "title": "URI to Directory Path bijection",
+      "description": "Every URI proc://<org>/<ability>/<version> must map strictly to proc/<ability>/<org>/<version>/",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-003",
+      "title": "Process directory triple (proc.yaml, bin.mjs, test.mjs)",
+      "description": "Each process directory must contain proc.yaml declaration, executable bin.mjs, and test.mjs contract test",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-004",
+      "title": "Standard Makefile Operational API",
+      "description": "Makefile must implement: test, pack, verify, run, observe, extract, deploy, rollback, conformance",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-005",
+      "title": "Cryptographic process catalog proc-catalog.json",
+      "description": "proc-catalog.json must contain valid SHA-256 hashes matching bin.mjs and proc.yaml",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-006",
+      "title": "Grants policy and prohibited baseline",
+      "description": "grants.yaml must enforce deny list including policy-write, claims-delete, git-push, self-restart",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-007",
+      "title": "Fail-Closed Contract (Exit codes 0, 1, 2)",
+      "description": "Processes must consume JSON from stdin, output JSON to stdout, and exit with code 0 on success, 1 on runtime error, 2 on contract mismatch",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-008",
+      "title": "Git versioning and immutable history",
+      "description": "Package must reside in a git repository with tagged releases and branch protection",
+      "severity": "high"
+    },
+    {
+      "id": "TKD-009",
+      "title": "Evolution with delegated controller and Digital Twin",
+      "description": "capsule.yaml must define evolution.delegated-to and twin retries limit",
+      "severity": "high"
+    },
+    {
+      "id": "TKD-010",
+      "title": "Zero Cross-Package code imports",
+      "description": "Processes must communicate exclusively via URI runner and JSON IPC without cross-package import/require",
+      "severity": "high"
+    }
+  ]
+}

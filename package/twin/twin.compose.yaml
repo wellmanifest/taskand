@@ -1,0 +1,13 @@
+# Piaskownica Digital Twin dla Standardu v1.0
+name: taskand-twin
+
+services:
+  twin-runner:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ..:/app:ro
+    environment:
+      - NODE_ENV=test
+      - TASKAND_TWIN=true
+    command: ["sh", "-c", "node verify-catalog.mjs && node proc/flow/login/taskand.dev/v1/test.mjs"]

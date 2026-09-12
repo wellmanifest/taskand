@@ -1,0 +1,14 @@
+claim: "Środowisko runtime aplikacji jest zamontowane w trybie read-only"
+scope:
+  integration: docker_runtime
+  operation: container_mount
+  environment: production
+status: przyjęta
+evidence:
+  - source: docker-compose.yaml
+    time: "2026-09-12T12:00:00Z"
+    test: "check-mount-options"
+critical_for:
+  - security_audit
+  - self_modification_prevention
+until_resolved: []

@@ -1,0 +1,10 @@
+{
+  "name": "taskand-glm53",
+  "version": "1.0.0",
+  "description": "Standard taskand v1.0 — referencyjna paczka procesów URI",
+  "type": "module",
+  "scripts": {
+    "test": "node verify-catalog.mjs && node proc/flow/login/taskand.dev/v1/test.mjs",
+    "verify": "node verify-catalog.mjs"
+  }
+}

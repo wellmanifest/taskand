@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskandProcessDeclarationV1",
+  "type": "object",
+  "required": ["uri", "name", "version", "entrypoint", "interface"],
+  "properties": {
+    "uri": { "type": "string", "pattern": "^proc://.+" },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "role": { "type": "string", "enum": ["orchestrator", "worker", "agent", "sensor"] },
+    "entrypoint": { "type": "string" },
+    "interface": {
+      "type": "object",
+      "required": ["input", "output"],
+      "properties": {
+        "input": { "type": "string" },
+        "output": { "type": "string" }
+      }
+    },
+    "grants": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

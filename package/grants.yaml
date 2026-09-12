@@ -1,0 +1,34 @@
+apiVersion: taskand.dev/v1
+kind: GrantPolicy
+metadata:
+  name: taskand-glm53-grants
+  version: "1.0.0"
+
+rules:
+  - subject: capsule:taskand-developer
+    target: repo:taskand-glm53
+    git: [clone, fetch, checkout-branch, add, commit, merge, tag, revert]
+    scope: "artifacts(class in [process, strategy, schema, skill, docs])"
+
+  - subject: capsule:taskand-developer
+    target: supervisor
+    operations: [request-restart, request-deploy]
+    scope: "last-commit-validated == true"
+
+  - subject: proc://taskand.dev/flow/login/v1
+    target: proc:*
+    operations: [execute-proc]
+
+  - subject: role:controller
+    target: proc:*
+    operations: [run, observe]
+
+prohibited:
+  - operation: policy-write
+    reason: "Zmiana polityki uprawnień wymaga ręcznej akceptacji użytkownika"
+  - operation: claims-delete
+    reason: "Roszczenia wiedzy podlegają polityce append-only"
+  - operation: git-push
+    reason: "Wypychanie na zewnątrz zablokowane domyślnie dla bezpieczeństwa"
+  - operation: self-restart
+    reason: "Proces nie może modyfikować ani restartować własnego środowiska w runtime"

@@ -1,0 +1,30 @@
+apiVersion: taskand.dev/v1
+kind: TwinQualification
+metadata:
+  name: qualification-gates
+  version: "1.0.0"
+
+gates:
+  gate_a:
+    name: "Przydatność bliźniaka"
+    question: "Czy model środowiska jest wiarygodny dla tej operacji?"
+    criteria:
+      - network_isolation: true
+      - filesystem_cas_replay: true
+      - credentials_broker_mock: true
+    result: "Raport z granicami dopuszczalnych operacji"
+
+  gate_b:
+    name: "Poprawność procesu (DoD)"
+    question: "Czy Definition of Done spełniono w zakwalifikowanym środowisku?"
+    criteria:
+      - unit_tests_pass: true
+      - contract_fail_closed: true
+      - no_credential_leak: true
+      - return_code_zero: true
+    result: "Pass/fail kwalifikujący proces do wdrożenia"
+
+policy:
+  max_retries: 3
+  on_exhaustion: keep_previous_version
+  report_format: evolution-report.yaml

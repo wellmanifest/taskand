@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taskand:schema:envelope:v1",
+  "title": "Taskand CloudEvents Envelope v1.0",
+  "type": "object",
+  "required": ["specversion", "id", "source", "type", "time", "taskand", "data"],
+  "properties": {
+    "specversion": { "type": "string", "const": "1.0" },
+    "id": { "type": "string" },
+    "source": { "type": "string", "format": "uri" },
+    "type": { "type": "string" },
+    "subject": { "type": "string" },
+    "time": { "type": "string", "format": "date-time" },
+    "traceparent": { "type": "string" },
+    "taskand": {
+      "type": "object",
+      "required": ["cel", "priorytet", "idempotencykey", "schema"],
+      "properties": {
+        "cel": { "type": "string" },
+        "priorytet": { "type": "string", "enum": ["critical", "evolution", "normal", "low"] },
+        "idempotencykey": { "type": "string" },
+        "grantsref": { "type": "string" },
+        "artifactref": { "type": "string" },
+        "schema": { "type": "string" }
+      }
+    },
+    "data": { "type": "object" }
+  },
+  "additionalProperties": true
+}

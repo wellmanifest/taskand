@@ -1,0 +1,15 @@
+{
+  "schema": "wellmanifest.taskand/bundle/v1",
+  "standard": "wellmanifest/taskand",
+  "version": "1.0.0",
+  "files": {
+    "VERSION": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
+    "policy.json": "042ef3647a6fab8869027acd7c9ff3e83de46ef81b9b5a3578686ecc28329f2e",
+    "schemas/capsule.v1.json": "a2126042451d2c3e42c5e55e58e1c52060e228c95b53a39cccd6e99edd623881",
+    "schemas/grants.v1.json": "87aef1bf533722d04d4f6af130d0dc8ddf873530c08cb7d9699d7552ec4f3224",
+    "schemas/proc.v1.json": "3fdae05f095f31885bd80fa571d4b6d7a0e05bb62e33ed1b3bc420482cc6b60c",
+    "schemas/catalog.v1.json": "e0dba8f0fb72f03bd0fd2dc7474889604f75821a9c2d2d781c538bb12046923e",
+    "operations/conformance.mjs": "dfecf4013757675b2b0d82d3bed5af16d4a1709eb392a8a20b5c12a097819023",
+    "operations/runner.mjs": "719d867b95fd96746f35d4f70ec42fee87679869654f41782448534ee11327cf"
+  }
+}

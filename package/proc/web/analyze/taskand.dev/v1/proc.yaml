@@ -1,0 +1,10 @@
+uri: proc://taskand.dev/web/analyze/v1
+interface:
+  stdin: any
+  stdout: any
+  exit: { 0: ok, 1: fail-closed, 2: kontrakt }
+runtimes:
+  - kind: node
+    bin: bin.mjs
+    engines: ">=20"
+grants: { run: [execute-proc] }

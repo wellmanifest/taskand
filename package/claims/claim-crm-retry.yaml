@@ -1,0 +1,16 @@
+claim: "Ponowienie zapisu po timeout nie tworzy duplikatu"
+scope:
+  integration: crm_adapter
+  operation: create_record
+  environment: production
+status: nieznana          # nieznana | zaobserwowana | zadeklarowana | wywnioskowana | przyjęta
+evidence: []
+critical_for:
+  - automatic_retry
+  - expected_repair_cost
+acquisition:
+  probe: sandbox
+  costMinorUnits: 45
+until_resolved:
+  - prohibit_blind_retry
+  - reconcile_before_write

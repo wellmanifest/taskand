@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "standard": "taskand-v1.0",
+  "generatedAt": "2026-09-12T13:24:29.086Z",
+  "bindings": [
+    {
+      "uri": "proc://taskand.dev/flow/login/v1",
+      "path": "proc/flow/login/taskand.dev/v1",
+      "binSha256": "1b24e9b405a5aecb9ad375acf82784afb6dfc1a06db0b05f4e323e3fc1e88e71",
+      "yamlSha256": "d032d497dfb7d0442b3b2a9f44379d25cebaf5b45aac51a4eaad6533538301f0",
+      "testSha256": "e16f2a461ef383395c103eb4daba5d0cd5ed15782adf4d31c7f0dd74d3f621b2"
+    },
+    {
+      "uri": "proc://taskand.dev/browser/session/v1",
+      "path": "proc/browser/session/taskand.dev/v1",
+      "binSha256": "f34472827eab3608b5ff12d81cbfd1e84892e1767916e68d7fa209b421b3d13e",
+      "yamlSha256": "237f84cf5ea7e24ef7080199f727916bf57c2fac52a799c516e77c592f8b694b",
+      "testSha256": "e2c2df56218e1a58f4c0708880d24cbfe86dc155b2f451b86f8c72d9594d5c9b"
+    },
+    {
+      "uri": "proc://taskand.dev/web/navigate/v1",
+      "path": "proc/web/navigate/taskand.dev/v1",
+      "binSha256": "dea6112ed9d5615001750d352820dc91f9ab692d4e32d8ea5e762effaa808430",
+      "yamlSha256": "9ae84de8e1a94839ce0bea346558aa72e7f68a9f4c6851fd6c80f6784d766992",
+      "testSha256": "b856a369ddf26b300196a225ab7007e8343e785bd1ed12ff3329d1ce41be5605"
+    },
+    {
+      "uri": "proc://taskand.dev/web/analyze/v1",
+      "path": "proc/web/analyze/taskand.dev/v1",
+      "binSha256": "48a9416c59978131e332b7cab7b7336baa9ac884b79ea68b8d31e8322ecb2dc5",
+      "yamlSha256": "9c1fd28e49b52e5568065b557968006839fbab00a84b92b2c63eeb6f5351242a",
+      "testSha256": "8caaa5f7537145adf5185b453a53415dfe14c4bfd315f6df8a229f485fd0c1a2"
+    }
+  ]
+}

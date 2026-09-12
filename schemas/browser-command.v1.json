@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taskand:schema:browser-command:v1",
+  "title": "Browser Command v1",
+  "type": "object",
+  "required": ["action"],
+  "properties": {
+    "action": { "type": "string", "enum": ["start", "stop", "navigate"] },
+    "sessionId": { "type": "string" },
+    "headless": { "type": "boolean" },
+    "credentialRef": { "type": "string" },
+    "url": { "type": "string" }
+  }
+}

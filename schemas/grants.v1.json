@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskandGrantsPolicyV1",
+  "type": "object",
+  "required": ["version", "spec"],
+  "properties": {
+    "version": { "type": "string" },
+    "spec": {
+      "type": "object",
+      "required": ["grants", "prohibited"],
+      "properties": {
+        "grants": { "type": "object" },
+        "prohibited": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

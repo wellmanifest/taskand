@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taskand:schema:browser-session:v1",
+  "title": "Browser Session v1",
+  "type": "object",
+  "required": ["sessionId"],
+  "properties": {
+    "sessionId": { "type": "string" },
+    "runtime": { "type": "string" },
+    "container": { "type": "string" },
+    "image": { "type": "string" },
+    "cookies": { "type": "string" },
+    "stopped": { "type": "boolean" }
+  }
+}
