@@ -21,6 +21,7 @@ Standard **taskand** definiuje uniwersalny paradygmat:
 4. **Zero Cross-Package Imports**: Orkiestracja odbywa się wyłącznie przez wywołania URI runnera — import kodu z innych pakietów jest zabroniony.
 5. **Kwalifikacja w Digital Twin**: Żadna nowa wersja nie trafia na produkcję bez przejścia bramek Gate A (kontrakt) i Gate B (regresja).
 6. **Zero Secrets at Rest**: Poświadczenia i hasła nigdy nie są zapisywane w obrazach ani commitach (patrz [docs/secrets.md](docs/secrets.md)).
+7. **Deterministyczna Jakość i Algorytmy**: Integracja z procesami jakości kodu [`semcod/algocode`](https://github.com/semcod/algocode) w architekturze komunikacji DSL (`Human` -> `LLM` -> `Algorithm`) według standardu [`wellmanifest/nl-dsl-llm`](https://github.com/wellmanifest/nl-dsl-llm).
 
 ---
 

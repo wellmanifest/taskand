@@ -284,3 +284,22 @@ W oparciu o wdrożenia referencyjne silnika orkiestracji Subactor/Premesh (PLF-0
 
 ### 14.6. Reaktywne strumieniowanie zdarzeń (SSE Events)
 - Runner emituje zdarzenia w czasie rzeczywistym: `plan_ready` (struktura DAG), `step_start`, `step_complete`, `rollback_start`, `rollback_step` oraz `finished`, umożliwiając renderowanie drzewa postępu w UI bez konieczności przeładowywania strony (zero-reload).
+
+---
+
+## 15. Integracja z Deterministycznymi Procesami Jakości Kodu i Algorytmami (semcod/algocode)
+
+W ramach trójstronnego modelu komunikacji opartego na DSL ([`wellmanifest/nl-dsl-llm`](https://github.com/wellmanifest/nl-dsl-llm)) pomiędzy modelem LLM, człowiekiem i algorytmami wykonawczymi:
+
+### 15.1. Rejestracja Procesów URI algocode
+Silnik analityczny [`semcod/algocode`](https://github.com/semcod/algocode) jest zarejestrowany jako zestaw deterministycznych procesów URI:
+- `proc://semcod/algocode/conflict-check` — weryfikacja kolizji ścieżek `ownedPaths` i konfliktów branchy.
+- `proc://semcod/algocode/dedup` — wykrywanie klonów strukturalnych AST (Type 1 i Type 2) oraz bloków kodu SHA-256.
+- `proc://semcod/algocode/triage` — algorytmiczne klastrowanie zgłoszeń i pojednanie z historią commitów Git (`ALREADY_RESOLVED`).
+- `proc://semcod/algocode/inspect` — ekstrakcja metryk kodu i symboli AST.
+
+### 15.2. Kontrakt Wykonania Fail-Closed
+- Wejście: JSON na `stdin` zgodny z normą taskand (fail-closed, kod 2 przy błędzie schematu).
+- Wyjście: pojedynczy obiekt JSON na `stdout` (kod 0 sukces, kod 1 błąd biznesowy) z niemutowalnymi skrótami dowodowymi (evidence hash).
+- Komunikacja między LLM a procesem odbywa się poprzez kanoniczny DSL lub protokół MCP (`tools/call`), eliminując halucynacje modelu i gwarantując bezbłędne bramki kwalifikacyjne.
+

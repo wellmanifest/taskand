@@ -1,0 +1,17 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-003",
+  "summary": "document algocode deterministic process URI integration",
+  "workstream": "integration",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": ["project/ticket-003/**", "TODO.md", "project/TICKETS.md", "README.md", "docs/README.md", "docs/standard.md"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
