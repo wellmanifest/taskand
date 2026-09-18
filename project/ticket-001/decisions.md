@@ -1,0 +1,53 @@
+```dsl
+DECISION D-001-0001
+TICKET ticket-001
+HEAD_SHA 388e0cc7fee92506e7cb94ab8b7479005ceffc18
+CORRELATION_ID taskand-audit-20260913-standard
+ACTOR agent:taskand
+APPLIED_RULE P-CORE-016
+INPUT decision_scope = "LOCAL_DETERMINISTIC_CHECK_ONLY_NOT_TRUSTED_APPROVAL"
+INPUT required_checks = ["governance"]
+INPUT observed_checks = ["governance=PASS"]
+INPUT governance_report = {"findings":[],"root":".","runtimeVersion":"0.11.0","schema":"new-project.governance-report/v1","status":"passed","summary":{"errors":0,"findings":0,"warnings":0}}
+INPUT publication_requested = false
+VERDICT APPROVE AUTHORITY DETERMINISTIC
+REJECTED REQUEST_CHANGES BECAUSE NO_LOCAL_GOVERNANCE_FAILURE_OBSERVED
+ASSERT LOCAL_CHECK_DOES_NOT_AUTHORIZE_EDIT_DEPLOYMENT_OR_MERGE
+ASSERT VERDICT_AUTHORITY != "ADVISORY"
+```
+
+```dsl
+DECISION D-001-0002
+TICKET ticket-001
+HEAD_SHA 388e0cc7fee92506e7cb94ab8b7479005ceffc18
+CORRELATION_ID taskand-delivery-prevention-20260913
+ACTOR agent:taskand
+APPLIED_RULE P-CORE-016
+INPUT decision_scope = "LOCAL_DETERMINISTIC_CHECK_ONLY_NOT_TRUSTED_APPROVAL"
+INPUT required_checks = ["governance", "tests", "worktree-overlap"]
+INPUT observed_checks = ["governance=PASS", "tests=PASS", "worktree-overlap=FAIL"]
+INPUT overlap_report_sha256 = "46d2d1aa7da35fa50d63536ef5df957a3a3b2005cd5d808d5f5d3d41bf3f0856"
+VERDICT REQUEST_CHANGES AUTHORITY DETERMINISTIC
+REJECTED APPROVE BECAUSE REQUIRED_WORKTREE_GUARD_FAILED
+ASSERT LOCAL_CHECK_DOES_NOT_AUTHORIZE_EDIT_DEPLOYMENT_OR_MERGE
+ASSERT VERDICT_AUTHORITY != "ADVISORY"
+```
+
+```dsl
+DECISION D-001-0003
+TICKET ticket-001
+HEAD_SHA 388e0cc7fee92506e7cb94ab8b7479005ceffc18
+CORRELATION_ID taskand-operational-recovery-20260913-standard
+ACTOR agent:taskand
+APPLIED_RULE P-CORE-016
+INPUT decision_scope = "LOCAL_DETERMINISTIC_CHECK_ONLY_NOT_TRUSTED_APPROVAL"
+INPUT required_checks = ["governance", "tests", "worktree-overlap"]
+INPUT observed_checks = ["governance=PASS", "tests=PASS", "worktree-overlap=FAIL"]
+INPUT tests_report_sha256 = "2ee8b6dd056a2a090c166e20b8b6f3ace0597984d8cf0a04e156c1231af5de3d"
+INPUT overlap_report_sha256 = "023fff9d7e30b480ea99ff192be79d2b3395cba25a25a4d1c4878e3ca05a427a"
+INPUT publication_requested = true
+VERDICT REQUEST_CHANGES AUTHORITY DETERMINISTIC
+REJECTED APPROVE BECAUSE REQUIRED_WORKTREE_GUARD_FAILED
+ASSERT LOCAL_CHECK_DOES_NOT_AUTHORIZE_EDIT_DEPLOYMENT_OR_MERGE
+ASSERT VERDICT_AUTHORITY != "ADVISORY"
+```

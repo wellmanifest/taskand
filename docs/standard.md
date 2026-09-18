@@ -250,3 +250,37 @@ Każda paczka zgodna ze standardem musi udostępniać następujące cele:
 7. Wszystkie procesy posiadają test kontraktu `test.mjs` zachowujący regułę fail-closed.
 8. Paczka znajduje się w repozytorium git z mechanizmem wersjonowania.
 9. Ewolucja kapsuły definiuje `delegated-to` oraz limit ponowień w Digital Twin (`retries`).
+
+---
+
+## 14. Orkiestracja zadań złożonych (DAG Task Orchestration & Closed-Loop Verification)
+
+W oparciu o wdrożenia referencyjne silnika orkiestracji Subactor/Premesh (PLF-036), standard taskand v1.1 rozszerza definicję planu wykonawczego (`FlowPlan`) o natywną obsługę grafów acyklicznych (DAG) oraz automatyczne wycofywanie zmian:
+
+### 14.1. Sortowanie topologiczne i wykrywanie cykli (Kahn's Algorithm)
+- Kroki planu mogą definiować listę identyfikatorów `depends_on`.
+- Przed wykonaniem runner weryfikuje istnienie wszystkich referencji i wykonuje sortowanie topologiczne (algorytm Kahna).
+- W przypadku wykrycia zależności zapętlonej silnik natychmiast przerywa działanie rzucając błąd `CyclicDependencyError`.
+- Plany bez jawnych pól `depends_on` zachowują 100% kompatybilności wstecznej (porządek sekwencyjny).
+
+### 14.2. Kaskadowe pomijanie zależności (Dependency Skipping)
+- Gdy dowolny krok nadrzędny ulegnie awarii (`FAILED`), wszystkie kroki zależne bezpośrednio lub tranzytywnie przechodzą w status `SKIPPED` z kodem HTTP `424 Failed Dependency`.
+- Kroki niezależne w innych gałęziach DAG kontynuują bezpieczne wykonanie.
+
+### 14.3. Polityka ponawiania prób (Retry Policy)
+- Każdy krok może zadeklarować parametry `retry_count` oraz `retry_delay`.
+- Przy błędzie przejściowym krok jest automatycznie ponawiany do zadanego limitu, a raport wykonania utrwala sumaryczną liczbę prób (`attempts`).
+
+### 14.4. Akcje kompensacyjne (Rollback / Saga Pattern)
+- Krok może zadeklarować akcję kompensacyjną `compensation` (np. cofnięcie instalacji pakietu, usunięcie pliku tymczasowego, przywrócenie bazy).
+- Przy aktywnej fladze `rollback_on_failure`, po wystąpieniu nieodwracalnego błędu silnik wykonuje akcje kompensacyjne w ścisłej odwrotnej kolejności topologicznej dla wszystkich kroków, które zakończyły się sukcesem.
+
+### 14.5. Zamknięta pętla sprzężenia zwrotnego (Closed-Loop Verification)
+- Krok wykonawczy jest weryfikowany w oparciu o stan rzeczywisty środowiska:
+  - Wykrywanie zmian wizualnych (procentowy diff bufora klatki RFB/VNC).
+  - Asercje tekstowe OCR (np. Tesseract, wykrywanie komunikatów sukcesu / alertów).
+  - Weryfikację obecności i aktywności okien interfejsu (EWMH / `wmctrl` / `xdotool`).
+  - Sprawdzanie kodów wyjścia procesów w powłoce systemowej.
+
+### 14.6. Reaktywne strumieniowanie zdarzeń (SSE Events)
+- Runner emituje zdarzenia w czasie rzeczywistym: `plan_ready` (struktura DAG), `step_start`, `step_complete`, `rollback_start`, `rollback_step` oraz `finished`, umożliwiając renderowanie drzewa postępu w UI bez konieczności przeładowywania strony (zero-reload).

@@ -1,0 +1,240 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-001",
+  "summary": "Versioned request/event DSL profiles and controlled complementary evolution",
+  "workstream": "integration",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    ".aider.conf.yml",
+    ".cursor/rules/new-project-standard.mdc",
+    ".githooks/pre-commit",
+    ".github/copilot-instructions.md",
+    ".github/workflows/new-project-governance.yml",
+    ".governance/AGENT_DECISIONS.md",
+    ".governance/adoption-bindings.json",
+    ".governance/adoption-bindings.schema.json",
+    ".governance/agent-hosts.json",
+    ".governance/agent-hosts.schema.json",
+    ".governance/agent_host_check.py",
+    ".governance/approval-evidence.schema.json",
+    ".governance/branch-intent-reconciliation.schema.json",
+    ".governance/branch_intent_reconciliation.py",
+    ".governance/branch_lifecycle_check.py",
+    ".governance/change-evaluation.schema.json",
+    ".governance/change-lease.schema.json",
+    ".governance/change_lease_check.py",
+    ".governance/check_required_checks.py",
+    ".governance/decision-record.schema.json",
+    ".governance/decision_record.py",
+    ".governance/diagnostics.json",
+    ".governance/diagnostics.schema.json",
+    ".governance/docs/BRANCH_INTENT_RECONCILIATION.md",
+    ".governance/docs/LOCAL_CI_PUBLICATION.md",
+    ".governance/error/GOV-AGENT-HOST.md",
+    ".governance/error/GOV-CHANGE-LEASE.md",
+    ".governance/error/GOV-INTENT.md",
+    ".governance/error/GOV-PACKAGING.md",
+    ".governance/error/GOV-REMEDIATION-INTENT.md",
+    ".governance/error/GOV-STANDARD-UPDATE.md",
+    ".governance/error/GOV-TICKET-001.md",
+    ".governance/error/GOV-TICKET-ACTIVITY.md",
+    ".governance/error/GOV-TICKET-ALLOCATION.md",
+    ".governance/error/GOV-WORK-CONTINUITY.md",
+    ".governance/error/GOV-WORKSPACE-LIFECYCLE.md",
+    ".governance/error/GOV-WORKTREE-OVERLAP.md",
+    ".governance/error/README.md",
+    ".governance/generate_required_checks.py",
+    ".governance/governance_check.py",
+    ".governance/intent.schema.json",
+    ".governance/lock.schema.json",
+    ".governance/manifest.base.json",
+    ".governance/manifest.json",
+    ".governance/manifest.lock.json",
+    ".governance/manifest.schema.json",
+    ".governance/package-manifest.json",
+    ".governance/precommit_standard_update.py",
+    ".governance/remediation-intent.schema.json",
+    ".governance/remediation-intent.template.dsl.json",
+    ".governance/remediation_intent.py",
+    ".governance/required-checks.json",
+    ".governance/required-checks.schema.json",
+    ".governance/stack-profiles.json",
+    ".governance/standard-adoption.json",
+    ".governance/standard-adoption.schema.json",
+    ".governance/standard-packs.json",
+    ".governance/standard_pack_check.py",
+    ".governance/templates/conftest-worktree-bootstrap.py",
+    ".governance/terminal-receipt-registry.schema.json",
+    ".governance/ticket-activity.json",
+    ".governance/ticket-activity.schema.json",
+    ".governance/ticket-allocation-receipt.schema.json",
+    ".governance/ticket-allocation-request.schema.json",
+    ".governance/ticket-allocation.json",
+    ".governance/ticket-allocation.schema.json",
+    ".governance/ticket_activity.py",
+    ".governance/ticket_allocation.py",
+    ".governance/work-classification.dsl.json",
+    ".governance/work-classification.schema.json",
+    ".governance/work-continuity.schema.json",
+    ".governance/work_continuity.py",
+    ".governance/workspace_lifecycle_check.py",
+    ".governance/worktree_guard.py",
+    ".governance/worktree_overlap_check.py",
+    ".governance/worktree_path_check.py",
+    ".governance/worktrees.lock.json",
+    ".governance/worktrees.schema.json",
+    ".subactor/.gitignore",
+    ".subactor/manifest.json",
+    "CLAUDE.md",
+    "GEMINI.md",
+    "TODO.md",
+    "project.bat",
+    "project.sh",
+    "project/TICKETS.md",
+    "project/governance-check.bat",
+    "project/governance-check.sh",
+    "project/new-ticket.sh",
+    "project/readme.sh",
+    "scripts/install-agent-hosts.sh",
+    "scripts/runtime.sh",
+    "wellmanifest_governance.py",
+    "worktree-guard.yaml",
+    ".gitignore",
+    "AGENTS.md",
+    "VERSION",
+    "policy.json",
+    "bundle.json",
+    "operations/bundle.py",
+    "tests/test_standard.py",
+    "schemas/envelope.v2.json",
+    "schemas/delivery-observation.v1.json",
+    "operations/delivery.py",
+    "docs/information/evolution.md",
+    "docs/README.md",
+    "README.md",
+    "project/ticket-001/**"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "388e0cc7fee92506e7cb94ab8b7479005ceffc18",
+    "targetBranch": "main",
+    "outcome": "Version 1.1 standard extension: closed request/log envelopes, version addressing, bounded evolution and a tested delivery-admission observation to prevent unpublished scope growth and unbounded recovery retries. Keep the normative bundle complete; protected publication remains separately gated.",
+    "nonGoals": [
+      "Direct merge, force push, hook bypass, new worktrees or automatic deployment",
+      "Changing runtime services or weakening execution/approval gates",
+      "Claiming glm53 already implements the new profile"
+    ],
+    "complexity": "L",
+    "estimatedMinutes": 120,
+    "budgets": {
+      "maxImplementationFiles": 15,
+      "maxAffectedComponents": 5,
+      "maxPublicInterfaceChanges": 3,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Preserve taskand-v1; add evolution-v1 with distinct request-only DSL and factual CloudEvents log profile. Add a closed observation and pure evaluator for full-range budgets, progress deadlines, exact-head publication, adoption preflight and bounded incident routing. The follow-up requests difficult recovery: extend only these existing draft files with persistent attempt/no-progress inputs, unknown-effect reconciliation and twin-first repair requirements. Reuse this ticket, preserve the 15-file budget, and do not grant effects or claim consumer enforcement from a local test. Bind the complete normative graph in the bundle.",
+      "components": [
+        {
+          "name": "adoption",
+          "paths": [
+            ".aider.conf.yml",
+            ".cursor/**",
+            ".githooks/**",
+            ".github/**",
+            ".gitignore",
+            ".governance/**",
+            ".subactor/.gitignore",
+            ".subactor/manifest.json",
+            "AGENTS.md",
+            "CLAUDE.md",
+            "GEMINI.md",
+            "project.bat",
+            "project/governance-check.*",
+            "project/new-ticket.sh",
+            "project/readme.sh",
+            "scripts/install-agent-hosts.sh",
+            "scripts/runtime.sh",
+            "wellmanifest_governance.py",
+            "worktree-guard.yaml",
+            "project/ticket-001/**",
+            "project/TICKETS.md",
+            "project.sh",
+            "TODO.md"
+          ]
+        },
+        {
+          "name": "contracts",
+          "paths": [
+            "schemas/**",
+            "policy.json",
+            "VERSION"
+          ]
+        },
+        {
+          "name": "verification",
+          "paths": [
+            "operations/bundle.py",
+            "operations/delivery.py",
+            "bundle.json",
+            "tests/**"
+          ]
+        },
+        {
+          "name": "documentation",
+          "paths": [
+            "docs/**",
+            "README.md"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [
+        "Additive envelope v2 profile with closed request and log definitions"
+      ],
+      "dataChanges": [
+        "Version and digest addressed contract references"
+      ],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Existing v1 schemas and reference package remain unchanged; consumers explicitly opt into the new profile."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "make test",
+          "make verify"
+        ],
+        "evidence": "Local conformance, bundle closure and positive/negative schema fixtures."
+      },
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "./project/governance-check.sh --format json --changed-file <each exact changed path>"
+        ],
+        "evidence": "Full exact-path governance report, not only base..HEAD."
+      }
+    ],
+    "standardAdoption": {
+      "sourceRepository": "wellmanifest/new-project",
+      "fromRevision": null,
+      "toRevision": "6d2da011088b69ebe1636f3bf681e5ec21a062ab"
+    }
+  }
+}

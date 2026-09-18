@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taskand:schema:envelope:v2",
+  "title": "Taskand evolution-v1: distinct request-only DSL and CloudEvents log profiles",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/taskRequest"
+    },
+    {
+      "$ref": "#/$defs/logEvent"
+    }
+  ],
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uri",
+        "digest"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9+.-]*:[^\\s]+$"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "taskRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "id",
+        "kind",
+        "correlationRef",
+        "causationRef",
+        "operation",
+        "payload",
+        "dsl",
+        "contextRefs",
+        "authorityRef",
+        "idempotencyKey",
+        "budget"
+      ],
+      "properties": {
+        "schema": {
+          "const": "taskand.task-request/v1"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^urn:[^\\s]+$"
+        },
+        "kind": {
+          "enum": [
+            "COMMAND",
+            "QUERY"
+          ]
+        },
+        "correlationRef": {
+          "type": "string",
+          "pattern": "^urn:[^\\s]+$"
+        },
+        "causationRef": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^urn:[^\\s]+$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "operation": {
+          "$ref": "#/$defs/reference"
+        },
+        "payload": {
+          "$ref": "#/$defs/reference"
+        },
+        "dsl": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "artifact",
+            "schema",
+            "grammar"
+          ],
+          "properties": {
+            "mode": {
+              "const": "REQUEST_ONLY"
+            },
+            "artifact": {
+              "$ref": "#/$defs/reference"
+            },
+            "schema": {
+              "$ref": "#/$defs/reference"
+            },
+            "grammar": {
+              "$ref": "#/$defs/reference"
+            }
+          }
+        },
+        "contextRefs": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/reference"
+          }
+        },
+        "authorityRef": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9+.-]*:[^\\s]+$"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "maxSteps",
+            "maxAttempts",
+            "maxChildren",
+            "maxDepth",
+            "deadline"
+          ],
+          "properties": {
+            "maxSteps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 128
+            },
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "maxChildren": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            },
+            "maxDepth": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8
+            },
+            "deadline": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      "$anchor": "task-request"
+    },
+    "logEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "specversion",
+        "id",
+        "source",
+        "type",
+        "time",
+        "datacontenttype",
+        "dataschema",
+        "correlationid",
+        "requestref",
+        "data"
+      ],
+      "properties": {
+        "specversion": {
+          "const": "1.0"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9+.-]*:[^\\s]+$"
+        },
+        "type": {
+          "const": "taskand.execution.observed.v1"
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "datacontenttype": {
+          "const": "application/json"
+        },
+        "dataschema": {
+          "const": "urn:taskand:schema:envelope:v2#log-data"
+        },
+        "correlationid": {
+          "type": "string",
+          "pattern": "^urn:[^\\s]+$"
+        },
+        "requestref": {
+          "type": "string",
+          "pattern": "^urn:[^\\s]+$"
+        },
+        "data": {
+          "$ref": "#/$defs/logData"
+        }
+      },
+      "$anchor": "log-event"
+    },
+    "logData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "eventRef",
+        "subjectRef",
+        "result",
+        "code",
+        "evidenceRefs"
+      ],
+      "properties": {
+        "schema": {
+          "const": "taskand.log-event/v1"
+        },
+        "eventRef": {
+          "type": "string",
+          "pattern": "^urn:[^\\s]+$"
+        },
+        "subjectRef": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9+.-]*:[^\\s]+$"
+        },
+        "result": {
+          "enum": [
+            "OBSERVED",
+            "FAILED",
+            "BLOCKED",
+            "SUCCEEDED"
+          ]
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/reference"
+          }
+        }
+      },
+      "$anchor": "log-data"
+    }
+  }
+}

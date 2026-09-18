@@ -12,6 +12,19 @@ FILES = (
     "schemas/grants.v1.json",
     "schemas/proc.v1.json",
     "schemas/catalog.v1.json",
+    "schemas/envelope.v1.json",
+    "schemas/envelope.v2.json",
+    "schemas/delivery-observation.v1.json",
+    "schemas/browser-command.v1.json",
+    "schemas/browser-session.v1.json",
+    "docs/standard.md",
+    "docs/secrets.md",
+    "docs/digital-twin.md",
+    "docs/information/evolution.md",
+    "operations/bundle.py",
+    "operations/delivery.py",
+    "operations/catalog.mjs",
+    "operations/new_package.sh",
     "operations/conformance.mjs",
     "operations/runner.mjs"
 )
@@ -25,6 +38,8 @@ def main():
     policy = json.loads((ROOT / "policy.json").read_text())
     if policy["version"] != version:
         raise ValueError("Policy and release versions differ")
+    if set(path.relative_to(ROOT).as_posix() for path in (ROOT / 'schemas').glob('*.json')) - set(FILES):
+        raise ValueError('Normative schema omitted from bundle')
     result = {
         "schema": "wellmanifest.taskand/bundle/v1",
         "standard": "wellmanifest/taskand",

@@ -1,10 +1,21 @@
 {
   "schema": "wellmanifest.taskand/policy/v1",
   "standard": "wellmanifest/taskand",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "home": "wellmanifest",
   "shape": "domain_pack",
   "profiles": {
+    "evolution-v1": {
+      "envelope_schema": "urn:taskand:schema:envelope:v2",
+      "request_schema": "urn:taskand:schema:envelope:v2#task-request",
+      "event_schema": "urn:taskand:schema:envelope:v2#log-event",
+      "normative_document": "docs/information/evolution.md",
+      "adoption": "explicit; existing taskand-v1 consumers remain unchanged",
+      "runtime_conformance": "not implied by bundle validity or glm53 process URI version",
+      "delivery_observation_schema": "urn:taskand:schema:delivery-observation:v1",
+      "delivery_evaluator": "operations/delivery.py",
+      "delivery_enforcement": "reference-only; explicit controller adoption required"
+    },
     "taskand-v1": {
       "manifest_schema": "taskand.capsule/v1",
       "required_files": [
@@ -17,6 +28,30 @@
     }
   },
   "requirements": [
+    {
+      "id": "TKD-014",
+      "title": "Bound incident recovery without replaying uncertain effects",
+      "description": "Keep incident identity and shared repair/no-progress budgets across restarts, prompts and descendants. Reconcile unknown effect outcomes before retries, quarantine regressing candidates, preserve every working layer and rehearse scoped repairs in a qualified twin. Watchers and evaluators grant no authority; the protected controller revalidates before each effect. Stop only the affected scope and escalate the concrete missing evidence or authority without creating new writers.",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-013",
+      "title": "Bound delivery debt before further evolution",
+      "description": "Before every continuation, allocation, governance activation and publication, observe the entire accepted-base delta and all working layers. Reconcile adoption and ownership first; finish or preserve pending delivery before growing the same scope. Use a closed, digest-bound observation and never infer remote publication or merge from local source, tests or snapshots.",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-011",
+      "title": "Separate versioned requests, facts and authority",
+      "description": "Evolution profile binds closed request-only DSL, payload, grammar and operation registry by immutable URI and digest. CloudEvents logs record facts and never authorize effects. Controller validates referenced schemas, scope and idempotency before one effect.",
+      "severity": "critical"
+    },
+    {
+      "id": "TKD-012",
+      "title": "Bounded complementary evolution and multiplication",
+      "description": "Reuse pinned qualified processes and twins first; allocate children atomically with no broader grants and decreasing shared budgets. Unknown twin behavior blocks dependent effects. Promotion requires Gate A/B evidence, independent exact-head approval and controller receipt; advisory LLM output cannot weaken policy.",
+      "severity": "critical"
+    },
     {
       "id": "TKD-001",
       "title": "Capsule manifest with processes[] and valid role",
@@ -77,5 +112,35 @@
       "description": "Processes must communicate exclusively via URI runner and JSON IPC without cross-package import/require",
       "severity": "high"
     }
-  ]
+  ],
+  "delivery_diagnostics": {
+    "TKD-RECOVERY-EFFECT": "Read the existing operation receipt and exact remote state by idempotency key before considering another effect; a timeout is not proof of failure.",
+    "TKD-RECOVERY-REGRESSION": "Freeze promotion of the affected candidate and preserve evidence; propose only an already authorized and tested rollback, never reset or discard work.",
+    "TKD-RECOVERY-AUTHORITY": "Resolve the exact missing target, effect and authority; do not repeat generic approval requests or change policy to self-authorize.",
+    "TKD-RECOVERY-EXHAUSTED": "Stop the affected writer and descendants; preserve state and issue one incident-linked escalation. Do not reset counters through a new prompt, ticket or node.",
+    "TKD-RECOVERY-PRESERVATION": "Capture and verify restoration of index, working files, untracked material and unique history before repair.",
+    "TKD-RECOVERY-UNKNOWN": "Retain a redacted source reference and diagnose the unrecognized failure; do not infer transient failure or successful recovery.",
+    "TKD-RECOVERY-TWIN-FAILED": "Reject the failed repair rehearsal and preserve its evidence; no production retry or promotion follows a failed twin.",
+    "TKD-RECOVERY-TWIN": "Reproduce the exact incident in an isolated, revision-bound twin with explicit coverage before proposing a repair effect.",
+    "TKD-RECOVERY-BACKOFF": "Observe the persisted retry deadline; missing backoff evidence does not authorize immediate retry.",
+    "TKD-RECOVERY-RETRY": "A retry candidate is not permission: revalidate idempotency, target state, scope, lease, shared budget and all controller gates before one attempt.",
+    "TKD-RECOVERY-PLAN": "Plan a bounded repair within accepted intent; resolve ownership and all failing gates before an independently controlled effect.",
+    "TKD-DELIVERY-INVALID": "Reject malformed observations without echoing their contents; acquire a fresh closed observation.",
+    "TKD-DELIVERY-STALE": "Reobserve Git, workspace, remote and controller against the current clock.",
+    "TKD-DELIVERY-OWNER": "Resolve the actual owner and fencing; preserve unknown and concurrent work.",
+    "TKD-DELIVERY-ADOPTION": "Reconcile the pre-adoption baseline and every affected checkout before activating policy; do not relabel history or disable gates.",
+    "TKD-DELIVERY-REMOTE": "Observe the remote branch and PR; absence and failed lookup are different states.",
+    "TKD-DELIVERY-OVERLAP": "Finish, hand off or serialize material debt in the overlapping scope; do not create another writer.",
+    "TKD-DELIVERY-BUDGET": "Preserve all layers and split the complete outcome through the ticket lifecycle; do not enlarge the budget to hide debt.",
+    "TKD-DELIVERY-CONTROLLER": "Restore or reconcile the declared protected delivery route; do not substitute a fake status or weaker review.",
+    "TKD-DELIVERY-PENDING": "Complete or explicitly defer the existing delivery before starting a new slice in this scope.",
+    "TKD-DELIVERY-ACTIVATION": "Qualify the clean adoption candidate and every clone-wide hook consumer before activation.",
+    "TKD-DELIVERY-VALIDATION": "Preserve dirty state and validate the exact complete changeset; repair only within the accepted intent.",
+    "TKD-DELIVERY-AUTHORITY": "Preserve the bounded outcome and resolve only genuinely missing publication authority.",
+    "TKD-DELIVERY-UNCOMMITTED": "Stage the exact verified intent and material delta; commit with all applicable hooks enabled.",
+    "TKD-DELIVERY-UNPUSHED": "Recheck authority and full-range gates, push only the ticket branch and read back its exact SHA.",
+    "TKD-DELIVERY-NO-PR": "Reuse or open the matching ticket PR and verify its exact head; do not duplicate PRs.",
+    "TKD-DELIVERY-REVIEW": "Keep the exact head frozen for independent protected review; never self-merge.",
+    "TKD-DELIVERY-BOUNDED": "Continue only within current intent, scope, ownership and budgets; this result grants no authority."
+  }
 }

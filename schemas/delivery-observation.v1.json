@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taskand:schema:delivery-observation:v1",
+  "title": "Taskand delivery observation (advisory; never effect authority)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "subject",
+    "observedAt",
+    "lastProgressAt",
+    "maxObservationAgeSeconds",
+    "checkpointSeconds",
+    "maxMaterialFiles",
+    "material",
+    "checks",
+    "remote",
+    "overlappingDeliveries",
+    "sliceComplete",
+    "publicationAuthorized",
+    "request",
+    "recovery"
+  ],
+  "properties": {
+    "schema": {
+      "const": "taskand.delivery-observation/v1"
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "ticket",
+        "headSha",
+        "baseSha",
+        "intentDigest",
+        "policyDigest",
+        "workspaceDigest"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
+        },
+        "ticket": {
+          "type": "string",
+          "pattern": "^ticket-[0-9]{3,}$"
+        },
+        "headSha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "baseSha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "intentDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "policyDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "workspaceDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lastProgressAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "maxObservationAgeSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 300
+    },
+    "checkpointSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
+    },
+    "maxMaterialFiles": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "committed",
+        "staged",
+        "unstaged",
+        "untracked"
+      ],
+      "properties": {
+        "committed": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\\\\\r\\n]).+$"
+          }
+        },
+        "staged": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\\\\\r\\n]).+$"
+          }
+        },
+        "unstaged": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\\\\\r\\n]).+$"
+          }
+        },
+        "untracked": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\\\\\r\\n]).+$"
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ownership",
+        "adoption",
+        "governance",
+        "tests",
+        "deliveryController"
+      ],
+      "properties": {
+        "ownership": {
+          "enum": [
+            "VERIFIED",
+            "CONFLICT",
+            "UNKNOWN"
+          ]
+        },
+        "adoption": {
+          "enum": [
+            "VERIFIED",
+            "UNRECONCILED",
+            "UNKNOWN"
+          ]
+        },
+        "governance": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNKNOWN"
+          ]
+        },
+        "tests": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNKNOWN"
+          ]
+        },
+        "deliveryController": {
+          "enum": [
+            "READY",
+            "UNAVAILABLE",
+            "UNKNOWN"
+          ]
+        }
+      }
+    },
+    "remote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "headSha",
+        "prHeadSha"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "OBSERVED",
+            "UNKNOWN"
+          ]
+        },
+        "headSha": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prHeadSha": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "overlappingDeliveries": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "sliceComplete": {
+      "type": "boolean"
+    },
+    "publicationAuthorized": {
+      "type": "boolean"
+    },
+    "recovery": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fingerprint", "kind", "attemptsUsed", "maxAttempts", "noProgressAttempts", "maxNoProgressAttempts", "preservation", "twin", "retryAfter"],
+          "properties": {
+            "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+            "kind": {"enum": ["TRANSIENT", "CONFLICT", "CONTRACT_GAP", "AUTHORITY_GAP", "UNKNOWN_EFFECT", "REGRESSION", "UNKNOWN"]},
+            "attemptsUsed": {"type": "integer", "minimum": 0, "maximum": 10000},
+            "maxAttempts": {"type": "integer", "minimum": 1, "maximum": 100},
+            "noProgressAttempts": {"type": "integer", "minimum": 0, "maximum": 10000},
+            "maxNoProgressAttempts": {"type": "integer", "minimum": 1, "maximum": 100},
+            "preservation": {"enum": ["VERIFIED", "UNKNOWN"]},
+            "twin": {"enum": ["PASS", "FAIL", "UNKNOWN"]},
+            "retryAfter": {"oneOf": [{"type": "string", "format": "date-time"}, {"type": "null"}]}
+          }
+        }
+      ]
+    },
+    "request": {
+      "enum": [
+        "CONTINUE_SLICE",
+        "START_NEW_SLICE",
+        "PUBLISH",
+        "ACTIVATE_GOVERNANCE"
+      ]
+    }
+  }
+}
