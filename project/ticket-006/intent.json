@@ -1,0 +1,78 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-006",
+  "summary": "Adopt pinned Docs gate for MCP guidance",
+  "workstream": "governance",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-006/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    ".governance/check_docs.py",
+    ".governance/docs.json",
+    ".governance/tests/test_docs_adoption.py"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "e1c6072065489ac1b907b4fd4de6c45494601320",
+    "targetBranch": "main",
+    "outcome": "Adopt pinned Docs with a fail-closed local prepare/completion entry point and regression canaries. Publish through independent protected Validator review and merge.",
+    "nonGoals": [
+      "No protected CI reconfiguration",
+      "No manual changes to managed pins",
+      "No product runtime changes"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 60,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Local Docs adapter executes immutable upstream Git objects and validates managed documentation against the published new-project inventory.",
+      "components": [
+        {
+          "name": "docs-adoption",
+          "paths": [
+            ".governance/docs.json",
+            ".governance/check_docs.py",
+            ".governance/tests/test_docs_adoption.py"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert this adoption commit; preserve the existing governance package."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "python3 -m unittest discover -s .governance/tests -v",
+          "./project/governance-check.sh"
+        ],
+        "evidence": "Local regression and governance results; no trusted approval claimed."
+      }
+    ]
+  }
+}
