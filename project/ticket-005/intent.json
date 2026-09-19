@@ -1,0 +1,52 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-005",
+  "summary": "Taskand MCP reuse and stable runtime guidance",
+  "workstream": "integration",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-005/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "docs/INFORMATION/MCP_RUNTIME_RELIABILITY.md",
+    "docs/INFORMATION/TASKAND_MCP_REUSE.md",
+    "docs/README.md",
+    "docs/information/evolution.md",
+    "docs/information/taskand-evolution.md",
+    "operations/bundle.py",
+    "VERSION",
+    "policy.json",
+    "bundle.json"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": ["ticket-006"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "9d961cbd0e839b0d23d87b5e2e7fd64f83aa377a",
+    "targetBranch": "main",
+    "outcome": "Local, validated Taskand MCP reuse and runtime guidance in the owning standard. Publish through independent protected Validator review and merge.",
+    "nonGoals": ["No runtime client implementation", "No schema semantics changes"],
+    "complexity": "M",
+    "estimatedMinutes": 60,
+    "budgets": {"maxImplementationFiles": 9, "maxAffectedComponents": 2, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "accepted",
+      "decision": "Add indexed informational guidance, preserving normative v1 contracts and runtime HOME ownership.",
+      "components": [{"name": "documentation", "paths": ["docs/**"]}, {"name": "release-projection", "paths": ["VERSION", "policy.json", "bundle.json", "operations/bundle.py"]}],
+      "responsibilityChanges": false,
+      "interfaceChanges": [], "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert only this ticket's documentation commit."
+    },
+    "runtimeDependencies": [],
+    "validation": [{"criterion": "AC-03", "commands": ["./project/governance-check.sh", "make test"], "evidence": "Local check receipts, not trusted merge approval."}]
+  }
+}

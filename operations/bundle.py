@@ -21,6 +21,7 @@ FILES = (
     "docs/secrets.md",
     "docs/digital-twin.md",
     "docs/information/evolution.md",
+    "docs/information/taskand-evolution.md",
     "operations/bundle.py",
     "operations/delivery.py",
     "operations/catalog.mjs",
