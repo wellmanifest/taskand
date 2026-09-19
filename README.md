@@ -3,12 +3,23 @@
 Standard architektury, wytwarzania i walidacji procesów autonomicznych identyfikowanych przez URI (`proc://`, `session://`, `artifact:`). HOME `wellmanifest`, SHAPE `domain_pack`.
 
 - [Specyfikacja Standardu taskand v1.0](docs/standard.md)
-- [Polityka maszynowa (TKD-001 do TKD-010)](policy.json)
+- [Polityka maszynowa (TKD-001 do TKD-014)](policy.json)
 - [Indeks dokumentacji](docs/README.md)
 - [Architektura zarządzania sekretami](docs/secrets.md)
 - [Cyfrowy Bliźniak i bramki kwalifikacyjne](docs/digital-twin.md)
 - [Schematy JSON](schemas/)
 - [Referencyjna paczka procesów](package/)
+- [Standard komplementarny: wellmanifest/uriprocess](https://github.com/wellmanifest/uriprocess)
+
+---
+
+## 🔗 Komplementarność z wellmanifest/uriprocess
+
+Standardy `wellmanifest/taskand` i `wellmanifest/uriprocess` tworzą spójny, dwufazowy łańcuch wytwórczo-wykonawczy dla procesów URI:
+1. **wellmanifest/uriprocess (Faza Wytwórcza i Proweniencja — URP-001..010)**:
+   - Definiuje specyfikację pakowania kodu z upstreamowych repozytoriów Git, weryfikację sum SHA-256 (`bundle.json`, `provenance.json`), hermetyzację dystrybucyjną oraz profile pakietów (`poa-node-v1`, `python-native-v1`).
+2. **wellmanifest/taskand (Faza Wykonawcza, Kapsuły i Bramki Cyfrowego Bliźniaka — TKD-001..014)**:
+   - Pobiera certyfikowane pakiety `uriprocess` i osadza je w kapsule wykonawczej (`capsule.yaml`), nakłada politykę najmniejszych uprawnień (`grants.yaml`), kwalifikuje proces w Cyfrowym Bliźniaku (Bramka A/B) i uruchamia w izolowanym środowisku wykonawczym ze ścisłym protokołem stdin/stdout JSON oraz zamkniętą pętlą wznawiania (Closed-Loop Resume Contract).
 
 ---
 
