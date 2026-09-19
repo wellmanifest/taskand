@@ -1,7 +1,7 @@
 {
   "schema": "wellmanifest.taskand/policy/v1",
   "standard": "wellmanifest/taskand",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "home": "wellmanifest",
   "shape": "domain_pack",
   "profiles": {
@@ -9,7 +9,7 @@
       "envelope_schema": "urn:taskand:schema:envelope:v2",
       "request_schema": "urn:taskand:schema:envelope:v2#task-request",
       "event_schema": "urn:taskand:schema:envelope:v2#log-event",
-      "normative_document": "docs/information/evolution.md",
+      "normative_document": "docs/information/taskand-evolution.md",
       "adoption": "explicit; existing taskand-v1 consumers remain unchanged",
       "runtime_conformance": "not implied by bundle validity or glm53 process URI version",
       "delivery_observation_schema": "urn:taskand:schema:delivery-observation:v1",
