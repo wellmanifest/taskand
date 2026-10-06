@@ -1,0 +1,96 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-008",
+  "summary": "application state lifecycle schema and closed-loop resume contract",
+  "workstream": "integration",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P2",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-008/**",
+    "project/ticket-*/README.md",
+    "TODO.md",
+    "project/TICKETS.md",
+    "docs/**",
+    "schemas/**",
+    "operations/bundle.py",
+    "bundle.json",
+    "tests/test_standard.py"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": ["python"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "7d5d06300f7a654fb56cdf2c6b1aafb98a85c873",
+    "targetBranch": "main",
+    "outcome": "Standardize Universal Application State Lifecycle Schema (schemas/app-state.v1.json) and closed-loop resume verification assertions for stateful applications within taskand graphs.",
+    "nonGoals": [
+      "Implement application runtime daemon engines",
+      "Grant execution authority without lease",
+      "Bypass protected PR merge and verification"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 5,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Formalize stateful application snapshot and verification models as part of taskand schemas and bundle projection.",
+      "components": [
+        {
+          "name": "schemas",
+          "paths": [
+            "schemas/app-state.v1.json"
+          ]
+        },
+        {
+          "name": "conformance",
+          "paths": [
+            "docs/information/app-state-contract.md",
+            "operations/bundle.py",
+            "bundle.json",
+            "tests/test_standard.py"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Introduce taskand.app-state/v1 schema"
+      ],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the five implementation files back to acceptedBaseSha."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "pytest"
+        ],
+        "evidence": "project/ticket-008/ai-claude-logs.txt"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": [
+          "python3 operations/bundle.py --check"
+        ],
+        "evidence": "project/ticket-008/ai-claude-logs.txt"
+      }
+    ]
+  }
+}

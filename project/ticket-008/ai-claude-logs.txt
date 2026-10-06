@@ -1,0 +1,9 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.12, pytest-9.1.1, pluggy-1.6.0
+rootdir: .
+collected 48 items
+
+tests/test_standard.py ................................................  [100%]
+
+============================== 48 passed in 0.27s ==============================
+Standard bundle: verified

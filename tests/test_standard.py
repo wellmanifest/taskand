@@ -417,5 +417,47 @@ class DeliveryAdmission(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout)['diagnostic'], 'TKD-DELIVERY-INVALID')
         self.assertNotIn('Traceback', result.stderr)
 
+
+class AppStateSchemaTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = json.loads((ROOT / 'schemas/app-state.v1.json').read_text())
+
+    def test_valid_app_state_fixtures(self):
+        for kind, state in [
+            ('gui_x11', {'geometry': {'x': 0, 'y': 0, 'width': 1920, 'height': 1080}, 'desktopIndex': 1, 'className': 'Code', 'pid': 1234, 'frameBufferHash': 'sha256:' + 'a' * 64, 'ocrBaselineText': 'Ready'}),
+            ('tui_terminal', {'dimensions': {'cols': 80, 'rows': 24}, 'ptyScrollback': 'session log', 'workingDirectory': '/home/tom', 'processCommand': 'bash', 'resumeToken': 'token-123'}),
+            ('browser_cdp', {'tabs': [{'url': 'http://localhost:3000', 'active': True, 'title': 'App'}], 'activeUrl': 'http://localhost:3000', 'sessionStorage': {}, 'formInputs': {}, 'scrollCoords': {'x': 0, 'y': 100}}),
+            ('service_daemon', {'systemdUnit': 'subactor.service', 'enabled': True, 'pid': 5678, 'envVars': {'PORT': '8080'}}),
+        ]:
+            doc = {
+                'schema': 'taskand.app-state/v1',
+                'appId': f'urn:app:{kind}',
+                'kind': kind,
+                'capturedAt': '2026-10-06T22:00:00Z',
+                'checkpointRef': 'urn:checkpoint:1',
+                'state': state,
+                'verification': {
+                    'assertWindowOcr': {
+                        'expectedText': 'Ready',
+                        'matchMode': 'contains',
+                    }
+                }
+            }
+            self.assertTrue(fixture_valid(doc, self.schema, self.schema), f"Failed validating {kind}")
+
+    def test_invalid_kind_rejected(self):
+        doc = {
+            'schema': 'taskand.app-state/v1',
+            'appId': 'urn:app:invalid',
+            'kind': 'invalid_kind',
+            'capturedAt': '2026-10-06T22:00:00Z',
+            'checkpointRef': None,
+            'state': {}
+        }
+        self.assertFalse(fixture_valid(doc, self.schema, self.schema))
+
+
 if __name__ == "__main__":
     unittest.main()
+
