@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taskand:schema:app-state:v1",
+  "title": "Universal Application State Lifecycle Schema v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "appId",
+    "kind",
+    "capturedAt",
+    "state"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "taskand.app-state/v1"
+    },
+    "appId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "gui_x11",
+        "tui_terminal",
+        "browser_cdp",
+        "service_daemon"
+      ]
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "checkpointRef": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state": {
+      "type": "object"
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "assertRfbDiff": {
+          "type": "object",
+          "properties": {
+            "referenceHash": {
+              "type": "string"
+            },
+            "maxDiffPercent": {
+              "type": "number"
+            }
+          }
+        },
+        "assertTuiScrollback": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string"
+            },
+            "caseSensitive": {
+              "type": "boolean"
+            }
+          }
+        },
+        "assertWindowOcr": {
+          "type": "object",
+          "properties": {
+            "expectedText": {
+              "type": "string"
+            },
+            "matchMode": {
+              "type": "string",
+              "enum": [
+                "contains",
+                "exact",
+                "regex"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

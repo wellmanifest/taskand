@@ -17,6 +17,7 @@ FILES = (
     "schemas/delivery-observation.v1.json",
     "schemas/browser-command.v1.json",
     "schemas/browser-session.v1.json",
+    "schemas/app-state.v1.json",
     "docs/standard.md",
     "docs/secrets.md",
     "docs/digital-twin.md",

@@ -2,7 +2,7 @@
 
 - **ID**: ticket-007
 - **Owner**: human:tom
-- **Status**: IN_PROGRESS
+- **Status**: DONE
 - **Workflow state**: EDIT
 - **Created**: 2026-09-27
 - **Authorization**: SESSION_EXECUTION_AUTHORIZATION
