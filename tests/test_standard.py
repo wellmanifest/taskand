@@ -417,6 +417,36 @@ class DeliveryAdmission(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout)['diagnostic'], 'TKD-DELIVERY-INVALID')
         self.assertNotIn('Traceback', result.stderr)
 
+    def test_cli_rejects_nonfinite_json_and_del_control_paths(self):
+        for payload in ('{"x": NaN}', '{"x": Infinity}', '{"x": -Infinity}'):
+            res = subprocess.run([sys.executable, '-B', str(ROOT / 'operations/delivery.py')],
+                                 input=payload, text=True, capture_output=True, check=False)
+            self.assertEqual(res.returncode, 2)
+            self.assertEqual(json.loads(res.stdout)['diagnostic'], 'TKD-DELIVERY-INVALID')
+        obs = self.observation(); obs['material']['staged'] = ['src/a\x7fb.py']
+        with self.assertRaises(ValueError):
+            self.module.evaluate(obs, now=obs['observedAt'])
+        array_schema = {'type': 'array', 'maxItems': 4, 'uniqueItems': True,
+                        'items': {'type': 'object', 'additionalProperties': False,
+                                  'required': ['k'], 'properties': {'k': {'type': 'string'}}}}
+        self.module.validate([{'k': 'a'}, {'k': 'b'}], array_schema)
+        with self.assertRaises(ValueError):
+            self.module.validate([{'k': 'a'}, {'k': 'a'}], array_schema)
+
+    def test_bundle_rejects_symlinks_and_modules_stay_under_500_lines(self):
+        import tempfile
+        spec = importlib.util.spec_from_file_location('bundle', ROOT / 'operations/bundle.py')
+        bundle_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(bundle_mod)
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            (tmp_path / 'real.txt').write_text('ok', encoding='utf-8')
+            (tmp_path / 'link.txt').symlink_to(tmp_path / 'real.txt')
+            with self.assertRaises(ValueError):
+                bundle_mod._read_regular_bytes(tmp_path, 'link.txt')
+        for rel in ('operations/delivery.py', 'operations/bundle.py', 'tests/test_standard.py'):
+            self.assertLess(len((ROOT / rel).read_text(encoding='utf-8').splitlines()), 500, rel)
+
 
 class AppStateSchemaTests(unittest.TestCase):
     @classmethod

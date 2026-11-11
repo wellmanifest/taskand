@@ -1,0 +1,99 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-009",
+  "summary": "ticket-009: harden delivery evaluator and bundle regular-file verification",
+  "workstream": "integration",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-009/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "bundle.json",
+    "operations/bundle.py",
+    "operations/delivery.py",
+    "tests/test_standard.py"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "73b381498c77e75d1d5930c3b1d92e077b04a7fe",
+    "targetBranch": "main",
+    "outcome": "Harden operations/delivery.py and operations/bundle.py with O_NOFOLLOW regular-file reads, non-finite JSON constant rejection, composite uniqueItems handling, schema caching, and regenerated bundle.json.",
+    "nonGoals": [
+      "Add network or Git effect authority to delivery.py",
+      "Modify normative JSON Schema vocabularies",
+      "Bypass protected PR merge and verification"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 5,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Enforce descriptor-safe regular-file reads, strict JSON parsing (duplicate keys and NaN/Infinity rejection), cached schema loading, and atomic bundle.json writes across taskand operations.",
+      "components": [
+        {
+          "name": "operations",
+          "paths": [
+            "operations/delivery.py",
+            "operations/bundle.py",
+            "bundle.json"
+          ]
+        },
+        {
+          "name": "tests",
+          "paths": [
+            "tests/test_standard.py"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert operations/delivery.py, operations/bundle.py, bundle.json, and tests/test_standard.py to acceptedBaseSha."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "python3 -m unittest discover -s tests -v"
+        ],
+        "evidence": "project/ticket-009/README.md"
+      },
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "python3 operations/bundle.py --check"
+        ],
+        "evidence": "project/ticket-009/README.md"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": [
+          "./project/governance-check.sh",
+          "wellman check"
+        ],
+        "evidence": "project/ticket-009/README.md"
+      }
+    ]
+  }
+}
