@@ -2,8 +2,8 @@
 
 - **ID**: ticket-009
 - **Owner**: agent:antigravity
-- **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Status**: DONE
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-11-11
 
 ## Goal and scope

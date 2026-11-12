@@ -1,4 +1,5 @@
 """Pure reference evaluator; no Git, network, lease, approval or effect authority."""
+
 from __future__ import annotations
 
 import argparse
@@ -6,11 +7,12 @@ import errno
 import functools
 import hashlib
 import json
+import math
 import os
 import re
 import stat
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path, PurePosixPath
 from typing import Any, NoReturn
 
@@ -18,8 +20,11 @@ SCHEMA_PATH = (
     Path(__file__).resolve().parents[1] / "schemas/delivery-observation.v1.json"
 )
 MAX_OBSERVATION_BYTES = 1_048_576
+_NS_PER_SECOND = 1_000_000_000
+_UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
 _RFC3339_RE = re.compile(
-    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})"
+    r"^(\d{4}-\d{2}-\d{2})[Tt](\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?([Zz]|[+-]\d{2}:\d{2})$",
+    re.ASCII,
 )
 
 
@@ -36,14 +41,77 @@ def _reject_nonfinite_json(token: str) -> NoReturn:
     raise ValueError(f"Non-finite JSON constant: {token}")
 
 
+def _parse_finite_float(token: str) -> float:
+    val = float(token)
+    if not math.isfinite(val):
+        raise ValueError(f"Non-finite JSON float: {token}")
+    return val
+
+
+def _has_surrogate(text: str) -> bool:
+    return any(0xD800 <= ord(ch) <= 0xDFFF for ch in text)
+
+
+def _reject_surrogates(value: Any) -> None:
+    stack = [value]
+    while stack:
+        cur = stack.pop()
+        if isinstance(cur, str):
+            if _has_surrogate(cur):
+                raise ValueError("Lone UTF-16 surrogate in JSON input")
+        elif isinstance(cur, dict):
+            for key, item in cur.items():
+                if isinstance(key, str) and _has_surrogate(key):
+                    raise ValueError("Lone UTF-16 surrogate in JSON key")
+                stack.append(item)
+        elif isinstance(cur, list):
+            stack.extend(cur)
+
+
+def _check_no_symlink_path(path: str | Path) -> Path:
+    raw_path = os.fspath(path)
+    if not isinstance(raw_path, str) or not raw_path or "\x00" in raw_path:
+        raise ValueError("Expected regular schema file without symlinks")
+    path_obj = Path(raw_path)
+    cur = Path(path_obj.anchor) if path_obj.is_absolute() else Path.cwd()
+    walk_parts = path_obj.parts[1:] if path_obj.is_absolute() else path_obj.parts
+    if not path_obj.is_absolute():
+        if len(cur.parts) > 2 and cur.is_symlink():
+            raise ValueError("Expected regular schema file without symlinks")
+        for anc in cur.parents:
+            if len(anc.parts) > 2 and anc.is_symlink():
+                raise ValueError("Expected regular schema file without symlinks")
+    for part in walk_parts:
+        if part in ("", "."):
+            continue
+        if part == "..":
+            cur = cur.parent
+            continue
+        cur = cur / part
+        if len(cur.parts) > 2 and cur.is_symlink():
+            raise ValueError("Expected regular schema file without symlinks")
+    abs_path = Path(os.path.abspath(raw_path))
+    if abs_path.is_symlink():
+        raise ValueError("Expected regular schema file without symlinks")
+    for anc in abs_path.parents:
+        if len(anc.parts) > 2 and anc.is_symlink():
+            raise ValueError("Expected regular schema file without symlinks")
+    return abs_path
+
+
 def _read_regular_json(path: Path, max_bytes: int = MAX_OBSERVATION_BYTES) -> Any:
-    flags = (
-        os.O_RDONLY
-        | getattr(os, "O_NOFOLLOW", 0)
-        | getattr(os, "O_NONBLOCK", 0)
-    )
+    abs_path = _check_no_symlink_path(path)
     try:
-        fd = os.open(path, flags)
+        before = os.lstat(abs_path)
+    except OSError as exc:
+        if exc.errno in (errno.ELOOP, errno.EISDIR):
+            raise ValueError("Expected regular schema file without symlinks") from exc
+        raise
+    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+        raise ValueError("Expected regular schema file without symlinks")
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    try:
+        fd = os.open(abs_path, flags)
     except OSError as exc:
         if exc.errno in (errno.ELOOP, errno.EISDIR):
             raise ValueError("Expected regular schema file without symlinks") from exc
@@ -52,6 +120,8 @@ def _read_regular_json(path: Path, max_bytes: int = MAX_OBSERVATION_BYTES) -> An
         st = os.fstat(fd)
         if stat.S_ISLNK(st.st_mode) or not stat.S_ISREG(st.st_mode):
             raise ValueError("Expected regular schema file without symlinks")
+        if (before.st_dev, before.st_ino) != (st.st_dev, st.st_ino):
+            raise ValueError("Schema file inode changed during open")
         if st.st_size > max_bytes:
             raise ValueError("Schema exceeds byte limit")
         chunks: list[bytes] = []
@@ -66,11 +136,14 @@ def _read_regular_json(path: Path, max_bytes: int = MAX_OBSERVATION_BYTES) -> An
             chunks.append(chunk)
     finally:
         os.close(fd)
-    return json.loads(
+    decoded = json.loads(
         b"".join(chunks).decode("utf-8"),
         object_pairs_hook=_unique_object,
         parse_constant=_reject_nonfinite_json,
+        parse_float=_parse_finite_float,
     )
+    _reject_surrogates(decoded)
+    return decoded
 
 
 @functools.lru_cache(maxsize=1)
@@ -81,13 +154,32 @@ def _bundled_schema() -> dict[str, Any]:
     return schema
 
 
+def _parse_rfc3339(value: Any) -> tuple[datetime, int]:
+    if not isinstance(value, str):
+        raise TypeError("Expected an offset-aware timestamp")
+    match = _RFC3339_RE.fullmatch(value)
+    if match is None:
+        raise ValueError("Expected an offset-aware timestamp")
+    date_part, time_part, frac_part, offset_part = match.groups()
+    if offset_part == "-00:00":
+        raise ValueError("Unknown local offset -00:00 is not permitted")
+    normalized_offset = "+00:00" if offset_part in ("Z", "z") else offset_part
+    base = datetime.fromisoformat(f"{date_part}T{time_part}{normalized_offset}")
+    if base.tzinfo is None:
+        raise ValueError("Expected an offset-aware timestamp")
+    nanos = int(frac_part.ljust(9, "0")) if frac_part else 0
+    epoch_ns = ((base - _UNIX_EPOCH) // timedelta(seconds=1)) * _NS_PER_SECOND + nanos
+    return base.replace(microsecond=nanos // 1000), epoch_ns
+
+
 def timestamp(value: Any) -> datetime:
-    if not isinstance(value, str) or not _RFC3339_RE.fullmatch(value):
-        raise ValueError("Expected an offset-aware timestamp")
-    result = datetime.fromisoformat(value)
-    if result.tzinfo is None:
-        raise ValueError("Expected an offset-aware timestamp")
-    return result
+    dt, _ = _parse_rfc3339(value)
+    return dt
+
+
+def _timestamp_ns(value: Any) -> int:
+    _, epoch_ns = _parse_rfc3339(value)
+    return epoch_ns
 
 
 def _canonical_item_key(item: Any) -> str:
@@ -148,6 +240,8 @@ def validate(value: Any, schema: dict[str, Any]) -> None:
     if kind == "object":
         required = set(schema.get("required", ()))
         properties = schema.get("properties", {})
+        if any(_has_surrogate(k) for k in value if isinstance(k, str)):
+            raise ValueError("Lone UTF-16 surrogate in object key")
         if not required <= value.keys():
             raise ValueError("Missing or unknown observation field")
         if (
@@ -168,9 +262,13 @@ def validate(value: Any, schema: dict[str, Any]) -> None:
         ) != len(value):
             raise ValueError("Duplicate material path")
     elif kind == "string":
+        if _has_surrogate(value):
+            raise ValueError("Lone UTF-16 surrogate in string value")
         if len(value) < schema.get("minLength", 0):
             raise ValueError("Empty reference")
-        if "pattern" in schema and not re.fullmatch(schema["pattern"], value):
+        if "pattern" in schema and not re.fullmatch(
+            schema["pattern"], value, flags=re.ASCII
+        ):
             raise ValueError("Invalid reference syntax")
         if schema.get("format") == "date-time":
             timestamp(value)
@@ -178,7 +276,9 @@ def validate(value: Any, schema: dict[str, Any]) -> None:
         raise ValueError("Invalid observation bound")
 
 
-def recovery_route(incident: dict[str, Any], current: datetime) -> tuple[str, str]:
+def recovery_route(
+    incident: dict[str, Any], current: datetime | int
+) -> tuple[str, str]:
     """Route observed incidents, never perform a repair or reset their ledger."""
     kind = incident["kind"]
     if kind == "UNKNOWN_EFFECT":
@@ -201,9 +301,13 @@ def recovery_route(incident: dict[str, Any], current: datetime) -> tuple[str, st
     if incident["twin"] != "PASS":
         return "REHEARSE_RECOVERY", "TKD-RECOVERY-TWIN"
     if kind == "TRANSIENT":
-        if incident["retryAfter"] is None or current < timestamp(
-            incident["retryAfter"]
-        ):
+        if incident["retryAfter"] is None:
+            return "WAIT_RETRY_WINDOW", "TKD-RECOVERY-BACKOFF"
+        if isinstance(current, int):
+            not_ready = current < _timestamp_ns(incident["retryAfter"])
+        else:
+            not_ready = current < timestamp(incident["retryAfter"])
+        if not_ready:
             return "WAIT_RETRY_WINDOW", "TKD-RECOVERY-BACKOFF"
         return "RETRY_CANDIDATE", "TKD-RECOVERY-RETRY"
     return "PLAN_BOUNDED_REPAIR", "TKD-RECOVERY-PLAN"
@@ -212,21 +316,29 @@ def recovery_route(incident: dict[str, Any], current: datetime) -> tuple[str, st
 def _is_unsafe_material_path(path: str) -> bool:
     posix = PurePosixPath(path)
     return bool(
-        posix.as_posix() != path
+        "\\" in path
+        or posix.as_posix() != path
         or path == "."
         or path.startswith("/")
         or ".." in posix.parts
-        or any(ord(c) < 32 or ord(c) == 127 for c in path)
+        or any(part != part.strip() for part in posix.parts)
+        or any(
+            ord(c) < 32
+            or ord(c) == 127
+            or 0x80 <= ord(c) <= 0x9F
+            or 0xD800 <= ord(c) <= 0xDFFF
+            for c in path
+        )
         or re.match(r"^[a-zA-Z]:", path)
     )
 
 
 def evaluate(observation: dict[str, Any], *, now: str) -> dict[str, Any]:
     validate(observation, _bundled_schema())
-    current = timestamp(now)
-    observed = timestamp(observation["observedAt"])
-    progress = timestamp(observation["lastProgressAt"])
-    if progress > observed:
+    current_ns = _timestamp_ns(now)
+    observed_ns = _timestamp_ns(observation["observedAt"])
+    progress_ns = _timestamp_ns(observation["lastProgressAt"])
+    if progress_ns > observed_ns:
         raise ValueError("Publication progress cannot occur after observation")
     incident = observation["recovery"]
     if incident and incident["noProgressAttempts"] > incident["attemptsUsed"]:
@@ -243,24 +355,27 @@ def evaluate(observation: dict[str, Any], *, now: str) -> dict[str, Any]:
         raise ValueError("Unknown remote observation cannot claim a SHA")
     if remote["prHeadSha"] and remote["prHeadSha"] != remote["headSha"]:
         raise ValueError("Inconsistent remote branch and PR observations; reobserve")
-    age = (current - observed).total_seconds()
-    due = (current - progress).total_seconds() >= observation["checkpointSeconds"]
+    age_ns = current_ns - observed_ns
+    max_age_ns = observation["maxObservationAgeSeconds"] * _NS_PER_SECOND
+    due = (current_ns - progress_ns) >= (
+        observation["checkpointSeconds"] * _NS_PER_SECOND
+    )
     request = observation["request"]
-    fresh = 0 <= age <= observation["maxObservationAgeSeconds"]
+    fresh = 0 <= age_ns <= max_age_ns
     pushed = fresh and known and remote["headSha"] == observation["subject"]["headSha"]
     pr_matches = (
         fresh and known and remote["prHeadSha"] == observation["subject"]["headSha"]
     )
     verified = checks["governance"] == checks["tests"] == "PASS"
 
-    if age < 0 or age > observation["maxObservationAgeSeconds"]:
+    if age_ns < 0 or age_ns > max_age_ns:
         route, code = "REOBSERVE", "TKD-DELIVERY-STALE"
     elif checks["ownership"] != "VERIFIED":
         route, code = "RECONCILE_OWNER", "TKD-DELIVERY-OWNER"
     elif checks["adoption"] != "VERIFIED":
         route, code = "RECONCILE_ADOPTION", "TKD-DELIVERY-ADOPTION"
     elif incident:
-        route, code = recovery_route(incident, current)
+        route, code = recovery_route(incident, current_ns)
     elif not known:
         route, code = "REOBSERVE", "TKD-DELIVERY-REMOTE"
     elif observation["overlappingDeliveries"]:
@@ -268,8 +383,7 @@ def evaluate(observation: dict[str, Any], *, now: str) -> dict[str, Any]:
     elif len(material) > observation["maxMaterialFiles"]:
         route, code = "SPLIT_WITH_PRESERVATION", "TKD-DELIVERY-BUDGET"
     elif (
-        checks["deliveryController"] != "READY"
-        and observation["publicationAuthorized"]
+        checks["deliveryController"] != "READY" and observation["publicationAuthorized"]
     ):
         route, code = "RESTORE_DELIVERY", "TKD-DELIVERY-CONTROLLER"
     elif request == "START_NEW_SLICE" and material:
@@ -292,7 +406,6 @@ def evaluate(observation: dict[str, Any], *, now: str) -> dict[str, Any]:
     else:
         route, code = "CONTINUE_BOUNDED", "TKD-DELIVERY-BOUNDED"
 
-    # Bind the clock as well as the observation: replay at another time differs.
     inputs = {"observation": observation, "evaluatedAt": now}
     digest = hashlib.sha256(
         json.dumps(
@@ -330,7 +443,9 @@ def main() -> int:
             raw.decode("utf-8"),
             object_pairs_hook=_unique_object,
             parse_constant=_reject_nonfinite_json,
+            parse_float=_parse_finite_float,
         )
+        _reject_surrogates(data)
         result = evaluate(data, now=args.now or datetime.now(UTC).isoformat())
     except (ValueError, TypeError, RecursionError):
         print(
@@ -346,7 +461,7 @@ def main() -> int:
         )
         return 2
     print(json.dumps(result, sort_keys=True, allow_nan=False))
-    return 0  # Successful evaluation, not permission or an applied effect.
+    return 0
 
 
 if __name__ == "__main__":

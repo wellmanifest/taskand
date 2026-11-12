@@ -1,0 +1,92 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-010",
+  "summary": "Harden RFC3339 nanosecond timestamps, float overflow, UTF-8 surrogates, and catalog verify",
+  "workstream": "integration",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-010/**",
+    "project/ticket-009/README.md",
+    "TODO.md",
+    "project/TICKETS.md",
+    "bundle.json",
+    "operations/bundle.py",
+    "operations/catalog.mjs",
+    "operations/delivery.py",
+    "operations/standard_fixtures.py",
+    "tests/test_standard.py"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "14ea35b61d88edd43d746dc9665fc1e4f1b0ebef",
+    "targetBranch": "main",
+    "outcome": "Harden RFC3339 nanosecond/ASCII timestamps, float overflow, UTF-16 surrogates, and symlink-ancestor checks in operations/delivery.py and operations/bundle.py, fix positional package directory verification in operations/catalog.mjs, modularize shared fixtures into operations/standard_fixtures.py (< 500 lines), and regenerate bundle.json.",
+    "nonGoals": [
+      "Add network or Git effect authority to delivery.py",
+      "Modify normative JSON Schema vocabularies",
+      "Bypass protected PR merge and verification"
+    ],
+    "complexity": "M",
+    "estimatedMinutes": 35,
+    "budgets": {
+      "maxImplementationFiles": 6,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Evaluate RFC3339 timestamps with exact integer UTC nanoseconds, reject 1e309 float overflow, lone UTF-16 surrogates, Unicode digits, and symlinked ancestor directories across delivery.py and bundle.py, honor positional package directory arguments in catalog.mjs, and extract operations/standard_fixtures.py.",
+      "components": [
+        {
+          "name": "operations",
+          "paths": [
+            "operations/delivery.py",
+            "operations/bundle.py",
+            "operations/catalog.mjs",
+            "operations/standard_fixtures.py",
+            "bundle.json"
+          ]
+        },
+        {
+          "name": "tests",
+          "paths": [
+            "tests/test_standard.py"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert operations/delivery.py, operations/bundle.py, operations/catalog.mjs, operations/standard_fixtures.py, bundle.json, and tests/test_standard.py to acceptedBaseSha."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "make test",
+          "make verify",
+          "./project/governance-check.sh",
+          "wellman check"
+        ],
+        "evidence": "project/ticket-010/README.md"
+      }
+    ]
+  }
+}
