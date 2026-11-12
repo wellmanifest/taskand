@@ -1,10 +1,12 @@
 """Build or verify the exact, portable standard adoption projection."""
+
 from __future__ import annotations
 
 import argparse
 import errno
 import hashlib
 import json
+import math
 import os
 import stat
 import tempfile
@@ -33,6 +35,7 @@ FILES = (
     "docs/information/taskand-evolution.md",
     "operations/bundle.py",
     "operations/delivery.py",
+    "operations/standard_fixtures.py",
     "operations/catalog.mjs",
     "operations/new_package.sh",
     "operations/conformance.mjs",
@@ -53,6 +56,31 @@ def _reject_nonfinite_json(token: str) -> NoReturn:
     raise ValueError(f"Non-finite JSON constant: {token}")
 
 
+def _parse_finite_float(token: str) -> float:
+    val = float(token)
+    if not math.isfinite(val):
+        raise ValueError(f"Non-finite JSON float: {token}")
+    return val
+
+
+def _reject_surrogates(value: Any) -> None:
+    stack = [value]
+    while stack:
+        cur = stack.pop()
+        if isinstance(cur, str):
+            if any(0xD800 <= ord(ch) <= 0xDFFF for ch in cur):
+                raise ValueError("Lone UTF-16 surrogate in JSON input")
+        elif isinstance(cur, dict):
+            for key, item in cur.items():
+                if isinstance(key, str) and any(
+                    0xD800 <= ord(ch) <= 0xDFFF for ch in key
+                ):
+                    raise ValueError("Lone UTF-16 surrogate in JSON key")
+                stack.append(item)
+        elif isinstance(cur, list):
+            stack.extend(cur)
+
+
 def _read_regular_bytes(
     root_dir: Path, relpath: str, max_bytes: int = MAX_BUNDLE_FILE_BYTES
 ) -> bytes:
@@ -60,14 +88,10 @@ def _read_regular_bytes(
     if not parts or parts[0] == "/" or ".." in parts or "." in parts:
         raise ValueError(f"Invalid bundle relative path: {relpath}")
     dir_flags = (
-        os.O_RDONLY
-        | getattr(os, "O_DIRECTORY", 0)
-        | getattr(os, "O_NOFOLLOW", 0)
+        os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
     )
     file_flags = (
-        os.O_RDONLY
-        | getattr(os, "O_NOFOLLOW", 0)
-        | getattr(os, "O_NONBLOCK", 0)
+        os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
     )
     try:
         cur_fd = os.open(root_dir, dir_flags)
@@ -119,11 +143,14 @@ def _read_regular_bytes(
 
 
 def _loads_strict(raw: bytes) -> Any:
-    return json.loads(
+    decoded = json.loads(
         raw.decode("utf-8"),
         object_pairs_hook=_unique_object,
         parse_constant=_reject_nonfinite_json,
+        parse_float=_parse_finite_float,
     )
+    _reject_surrogates(decoded)
+    return decoded
 
 
 def _atomic_write_text(target: Path, content: str) -> None:
@@ -133,9 +160,7 @@ def _atomic_write_text(target: Path, content: str) -> None:
             raise ValueError("bundle.json target must be a regular non-symlink file")
     except FileNotFoundError:
         pass
-    fd, tmp_name = tempfile.mkstemp(
-        dir=target.parent, prefix=".bundle.", suffix=".tmp"
-    )
+    fd, tmp_name = tempfile.mkstemp(dir=target.parent, prefix=".bundle.", suffix=".tmp")
     tmp_path = Path(tmp_name)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
@@ -172,13 +197,15 @@ def main() -> None:
     target = ROOT / "bundle.json"
     if args.check:
         if not target.exists() and not target.is_symlink():
-            raise ValueError("bundle.json missing; run operations/bundle.py to generate")
+            raise ValueError(
+                "bundle.json missing; run operations/bundle.py to generate"
+            )
         if _loads_strict(_read_regular_bytes(ROOT, "bundle.json")) != result:
-            raise ValueError("Standard bundle drift; regenerate within the material change")
+            raise ValueError(
+                "Standard bundle drift; regenerate within the material change"
+            )
     else:
-        _atomic_write_text(
-            target, json.dumps(result, indent=2, allow_nan=False) + "\n"
-        )
+        _atomic_write_text(target, json.dumps(result, indent=2, allow_nan=False) + "\n")
     print("Standard bundle: verified" if args.check else "Standard bundle: built")
 
 

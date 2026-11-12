@@ -20,9 +20,10 @@
     "docs/digital-twin.md": "261268758aaa2db65f6d0c19c0e5fbea239bc5ce0a7209a40b3b5b41665ba55b",
     "docs/information/evolution.md": "342b5f0fc4aa8244622fd214a4bec51efa1730e76603b079b3fe0cf9217c9a0f",
     "docs/information/taskand-evolution.md": "3cd6782d1183f9f339f7b197945f2c0bf993bd6c1f840ca5b87582fef8761ded",
-    "operations/bundle.py": "afc1a143330e45173d3495ac00650538beec27f5d8b2a109a0eb18517ded87bb",
-    "operations/delivery.py": "80bdd4b393657e5388ba5ce190cde9b77f22ec74b4c86f6366f069cd910f3394",
-    "operations/catalog.mjs": "ab8cac3583e278d0f7a9f47564dcc5cb3dedb480730feb93827fdbb07bacd28f",
+    "operations/bundle.py": "ca36c219643956cf75cdc595c059f66717301cd5ac2acfd0fe70284d75f7dc2b",
+    "operations/delivery.py": "71cdd1b57cdece0990503638cef28dee73ea0aeba46fd2c403c584b76485a349",
+    "operations/standard_fixtures.py": "3649ccf74a711a3889915d4eee3f64e0844ad2621a653fdf94a3104a8375bbd1",
+    "operations/catalog.mjs": "4864519b8b65cf0c62bc651de883dd8f99782da340919b846d0ed9f8d1a0be20",
     "operations/new_package.sh": "6147988e22948cff1c8077af0528330d508869ebfb7714e8fceca633b42a1cca",
     "operations/conformance.mjs": "dfecf4013757675b2b0d82d3bed5af16d4a1709eb392a8a20b5c12a097819023",
     "operations/runner.mjs": "719d867b95fd96746f35d4f70ec42fee87679869654f41782448534ee11327cf"
